@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  biletal:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./db:/var/www/html/db
+    environment:
+      - PHP_CLI_SERVER_WORKERS=4
+    restart: unless-stopped
