@@ -51,25 +51,23 @@ if (!$order) {
 // Siparisteki biletleri cek (iptal edilen seferler için LEFT JOIN kullan)
 $stmt = $db->prepare("
     SELECT t.id AS ticket_id, t.seat_number, t.price AS ticket_price, t.status, t.purchased_at,
+           t.company_name AS stored_company_name,
            CASE 
-               WHEN tr.departure_city IS NULL THEN 'Sefer Iptal Edildi'
+               WHEN tr.departure_city IS NULL THEN t.departure_city
                ELSE tr.departure_city 
            END AS departure_city,
            CASE 
-               WHEN tr.arrival_city IS NULL THEN 'Sefer Iptal Edildi'
+               WHEN tr.arrival_city IS NULL THEN t.arrival_city
                ELSE tr.arrival_city 
            END AS arrival_city,
-           COALESCE(tr.departure_time, t.purchased_at) AS departure_time, 
-           COALESCE(tr.arrival_time, t.purchased_at) AS arrival_time,
-           CASE 
-               WHEN c.name IS NULL THEN 'Bilinmeyen Sirket'
-               ELSE c.name 
-           END AS company_name
+           COALESCE(tr.departure_time, t.departure_time) AS departure_time, 
+           COALESCE(tr.arrival_time, t.arrival_time) AS arrival_time,
+           COALESCE(c.name, t.company_name, 'Bilinmeyen Sirket') AS company_name
     FROM tickets t
     LEFT JOIN trips tr ON t.trip_id = tr.id
     LEFT JOIN companies c ON tr.company_id = c.id
     WHERE t.order_id = :order_id
-    ORDER BY COALESCE(tr.departure_time, t.purchased_at) ASC, t.seat_number ASC
+    ORDER BY COALESCE(tr.departure_time, t.departure_time) ASC, t.seat_number ASC
 ");
 $stmt->execute([':order_id' => $order_id]);
 $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_trip'])) {
 <head>
     <meta charset="UTF-8">
     <title>Sefer Düzenle - BiletAl</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <style>
         .edit-container { max-width: 700px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .form-group { margin: 15px 0; }
@@ -133,12 +133,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_trip'])) {
 <body>
 
 <header>
-    <h1><a href="index.php">🚍 BiletAl</a></h1>
+    <h1><a href="/index.php">🚍 BiletAl</a></h1>
     <div class="nav-buttons">
         <span class="user-welcome">👋 Hoş geldin, <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['email']) ?>!</span>
-        <a href="index.php">🏠 Ana Sayfa</a>
-        <a href="company/company_panel.php">📊 Panel</a>
-        <a href="logout.php">Çıkış Yap</a>
+        <a href="/index.php">🏠 Ana Sayfa</a>
+        <a href="/company/company_panel.php">📊 Panel</a>
+        <a href="/logout.php">Çıkış Yap</a>
     </div>
 </header>
 
@@ -203,8 +203,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_trip'])) {
 
         <div style="margin-top: 30px;">
             <button type="submit" name="update_trip" class="btn btn-success">💾 Seferi Güncelle</button>
-            <a href="index.php" class="btn btn-secondary">❌ İptal Et</a>
-            <a href="delete_trip.php?id=<?= $trip['id'] ?>" class="btn" style="background: #dc3545;" onclick="return confirm('Bu seferi silmek istediğinize emin misiniz?')">🗑️ Seferi Sil</a>
+            <a href="/index.php" class="btn btn-secondary">❌ İptal Et</a>
+            <a href="/delete_trip.php?id=<?= $trip['id'] ?>" class="btn" style="background: #dc3545;" onclick="return confirm('Bu seferi silmek istediğinize emin misiniz?')">🗑️ Seferi Sil</a>
         </div>
     </form>
 </div>

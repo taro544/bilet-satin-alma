@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
     $stmt = $db->prepare("
-        SELECT c.trip_id, c.quantity, c.seat_numbers, t.price, t.capacity, t.departure_city, t.arrival_city, comp.name as company_name
+        SELECT c.trip_id, c.quantity, c.seat_numbers, t.price, t.capacity, t.departure_city, t.arrival_city, t.departure_time, t.arrival_time, comp.name as company_name
         FROM cart c 
         JOIN trips t ON c.trip_id = t.id 
         JOIN companies comp ON t.company_id = comp.id
@@ -180,25 +180,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
                         if (!empty($item['seat_numbers'])) {
                             $selected_seats = explode(',', $item['seat_numbers']);
                             foreach ($selected_seats as $seat_number) {
-                                $stmt = $db->prepare("INSERT INTO tickets (user_id, trip_id, seat_number, price, order_id) VALUES (:user_id, :trip_id, :seat_number, :price, :order_id)");
+                                $stmt = $db->prepare("INSERT INTO tickets (user_id, trip_id, seat_number, price, order_id, company_name, departure_city, arrival_city, departure_time, arrival_time) VALUES (:user_id, :trip_id, :seat_number, :price, :order_id, :company_name, :departure_city, :arrival_city, :departure_time, :arrival_time)");
                                 $stmt->execute([
                                     ':user_id' => $_SESSION['user_id'],
                                     ':trip_id' => $item['trip_id'],
                                     ':seat_number' => (int)$seat_number,
                                     ':price' => $item['price'],
-                                    ':order_id' => $order_id
+                                    ':order_id' => $order_id,
+                                    ':company_name' => $item['company_name'],
+                                    ':departure_city' => $item['departure_city'],
+                                    ':arrival_city' => $item['arrival_city'],
+                                    ':departure_time' => $item['departure_time'],
+                                    ':arrival_time' => $item['arrival_time']
                                 ]);
                             }
                         } else {
                             for ($i = 0; $i < $item['quantity']; $i++) {
                                 $seat_number = $item['capacity'] - $item['quantity'] + $i + 1;
-                                $stmt = $db->prepare("INSERT INTO tickets (user_id, trip_id, seat_number, price, order_id) VALUES (:user_id, :trip_id, :seat_number, :price, :order_id)");
+                                $stmt = $db->prepare("INSERT INTO tickets (user_id, trip_id, seat_number, price, order_id, company_name, departure_city, arrival_city, departure_time, arrival_time) VALUES (:user_id, :trip_id, :seat_number, :price, :order_id, :company_name, :departure_city, :arrival_city, :departure_time, :arrival_time)");
                                 $stmt->execute([
                                     ':user_id' => $_SESSION['user_id'],
                                     ':trip_id' => $item['trip_id'],
                                     ':seat_number' => $seat_number,
                                     ':price' => $item['price'],
-                                    ':order_id' => $order_id
+                                    ':order_id' => $order_id,
+                                    ':company_name' => $item['company_name'],
+                                    ':departure_city' => $item['departure_city'],
+                                    ':arrival_city' => $item['arrival_city'],
+                                    ':departure_time' => $item['departure_time'],
+                                    ':arrival_time' => $item['arrival_time']
                                 ]);
                             }
                         }

@@ -157,14 +157,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_ticket']) && $
     
     <!-- Bilet Bilgileri -->
     <div class="ticket-info">
-        <h3> Bilet Bilgileri</h3>
-        <p><strong> Firma:</strong> <?= htmlspecialchars($ticket['company_name']) ?></p>
-        <p><strong> Güzergah:</strong> <?= htmlspecialchars($ticket['departure_city']) ?> → <?= htmlspecialchars($ticket['arrival_city']) ?></p>
-        <p><strong> Kalkış:</strong> <?= date('d.m.Y H:i', strtotime($ticket['departure_time'])) ?></p>
-        <p><strong> Varış:</strong> <?= date('d.m.Y H:i', strtotime($ticket['arrival_time'])) ?></p>
+        <h3>📋 Bilet Bilgileri</h3>
+        <p><strong>🚍 Firma:</strong> <?= htmlspecialchars($ticket['company_name']) ?></p>
+        <p><strong>📍 Güzergah:</strong> <?= htmlspecialchars($ticket['departure_city']) ?> → <?= htmlspecialchars($ticket['arrival_city']) ?></p>
+        <p><strong>📅 Kalkış:</strong> <?= date('d.m.Y H:i', strtotime($ticket['departure_time'])) ?></p>
+        <p><strong>📅 Varış:</strong> <?= date('d.m.Y H:i', strtotime($ticket['arrival_time'])) ?></p>
         <p><strong>🪑 Koltuk No:</strong> <?= $ticket['seat_number'] ?></p>
-        <p><strong> Bilet Fiyatı:</strong> <?= number_format($ticket['price'], 2) ?> ₺</p>
-        <p><strong> Satın Alma Tarihi:</strong> <?= date('d.m.Y H:i', strtotime($ticket['purchased_at'])) ?></p>
+        <p><strong>💰 Bilet Fiyatı:</strong> <?= number_format($ticket['price'], 2) ?> ₺</p>
+        <?php 
+        // Gerçek ödenen tutarı hesapla
+        if ($ticket['order_id'] && $ticket['tickets_in_order'] > 0) {
+            $actual_paid = ($ticket['final_amount'] / $ticket['tickets_in_order']);
+            if ($actual_paid != $ticket['price']) {
+                echo '<p><strong>💵 Gerçek Ödenen:</strong> ' . number_format($actual_paid, 2) . ' ₺ <span style="color: #28a745;">(İndirimli)</span></p>';
+            }
+        }
+        ?>
+        <p><strong>🕐 Satın Alma Tarihi:</strong> <?= date('d.m.Y H:i', strtotime($ticket['purchased_at'])) ?></p>
     </div>
 
     <!-- Zaman Kontrolü -->
@@ -190,26 +199,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_ticket']) && $
     <?php if ($can_cancel): ?>
         <!-- İade Bilgisi -->
         <div class="refund-info">
-            <h4> İade Bilgileri</h4>
+            <h4>💰 İade Bilgileri</h4>
             <p>Biletinizi iptal etmeniz durumunda:</p>
+            <?php 
+            // Gerçek iade tutarını hesapla
+            if ($ticket['order_id'] && $ticket['tickets_in_order'] > 0) {
+                $refund_amount = ($ticket['final_amount'] / $ticket['tickets_in_order']);
+            } else {
+                $refund_amount = $ticket['price'];
+            }
+            ?>
             <ul>
-                <li> <strong><?= number_format($ticket['price'], 2) ?> ₺</strong> tam olarak hesabınıza iade edilecek</li>
-                <li> İade işlemi anında gerçekleşir</li>
-                <li> Bakiyenizi diğer bilet alımlarında kullanabilirsiniz</li>
-                <li> Size bildirim gönderilecek</li>
+                <li>💵 <strong><?= number_format($refund_amount, 2) ?> ₺</strong> tam olarak hesabınıza iade edilecek
+                    <?php if ($refund_amount != $ticket['price']): ?>
+                        <br><small style="color: #666;">(Kupon indirimiyle ödediğiniz tutar)</small>
+                    <?php endif; ?>
+                </li>
+                <li>⚡ İade işlemi anında gerçekleşir</li>
+                <li>💳 Bakiyenizi diğer bilet alımlarında kullanabilirsiniz</li>
+                <li>🔔 Size bildirim gönderilecek</li>
             </ul>
         </div>
 
         <!-- İptal Butonu -->
         <div class="warning-box">
-            <h4> Dikkat</h4>
+            <h4>⚠️ Dikkat</h4>
             <p>Bu işlem <strong>geri alınamaz</strong>. Biletinizi iptal ettikten sonra aynı sefer için tekrar bilet almak istediğinizde, koltuk müsaitliğine bağlı olarak yeniden satın alma işlemi yapmanız gerekecek.</p>
             
+            <?php 
+            // Gerçek iade tutarını hesapla
+            if ($ticket['order_id'] && $ticket['tickets_in_order'] > 0) {
+                $refund_amount = ($ticket['final_amount'] / $ticket['tickets_in_order']);
+            } else {
+                $refund_amount = $ticket['price'];
+            }
+            ?>
+            
             <form method="POST" style="margin-top: 20px;">
-                <button type="submit" name="cancel_ticket" class="btn btn-danger" onclick="return confirm('Bu bileti iptal etmek istediğinizden emin misiniz?\n\n <?= number_format($ticket['price'], 2) ?> ₺ hesabınıza iade edilecek\n Bu işlem geri alınamaz')">
-                     Bileti İptal Et
+                <button type="submit" name="cancel_ticket" class="btn btn-danger" onclick="return confirm('Bu bileti iptal etmek istediğinizden emin misiniz?\n\n💰 <?= number_format($refund_amount, 2) ?> ₺ hesabınıza iade edilecek\n⚠️ Bu işlem geri alınamaz')">
+                    🗑️ Bileti İptal Et
                 </button>
-                <a href="account.php" class="btn btn-secondary"> Vazgeç</a>
+                <a href="account.php" class="btn btn-secondary">❌ Vazgeç</a>
             </form>
         </div>
     <?php else: ?>

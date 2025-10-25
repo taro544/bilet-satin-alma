@@ -225,11 +225,11 @@ try {
                                         <span class="btn btn-edit" style="opacity: 0.5; cursor: not-allowed;" title="İptal edilmiş sefer düzenlenemez"></span>
                                         <span class="btn btn-delete" style="opacity: 0.5; cursor: not-allowed;" title="İptal edilmiş sefer"></span>
                                     <?php else: ?>
-                                        <a href="../edit_trip.php?id=<?= $trip['id'] ?>" class="btn btn-edit" title="Düzenle"></a>
+                                        <a href="/edit_trip.php?id=<?= $trip['id'] ?>" class="btn btn-edit" title="Düzenle">✏️</a>
                                         <?php if ($trip['sold_tickets'] == 0): ?>
-                                            <a href="../delete_trip.php?id=<?= $trip['id'] ?>" class="btn btn-delete" title="Sil" onclick="return confirm('Bu seferi silmek istediğinizden emin misiniz?')"></a>
+                                            <a href="/delete_trip.php?id=<?= $trip['id'] ?>" class="btn btn-delete" title="Sil" onclick="return confirm('Bu seferi silmek istediğinizden emin misiniz?')">🗑️</a>
                                         <?php else: ?>
-                                            <span class="btn btn-delete" style="opacity: 0.5; cursor: not-allowed;" title="Bilet satılmış, silinemez"></span>
+                                            <span class="btn btn-delete" style="opacity: 0.5; cursor: not-allowed;" title="Bilet satılmış, silinemez">🗑️</span>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </div>

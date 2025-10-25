@@ -108,9 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
         
         // Başarı mesajı ile ana sayfaya yönlendir
         if ($sold_tickets > 0) {
-            header('Location: index.php?message=Sefer başarıyla silindi. ' . $sold_tickets . ' adet bilet iptal edildi ve para iadeleri yapıldı.');
+            header('Location: /index.php?message=Sefer başarıyla silindi. ' . $sold_tickets . ' adet bilet iptal edildi ve para iadeleri yapıldı.');
         } else {
-            header('Location: index.php?message=Sefer başarıyla silindi.');
+            header('Location: /index.php?message=Sefer başarıyla silindi.');
         }
         exit;
         
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
 <head>
     <meta charset="UTF-8">
     <title>Sefer Sil - BiletAl</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <style>
         .delete-container { max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .trip-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; }
@@ -150,11 +150,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
 <body>
 
 <header>
-    <h1><a href="index.php">🚍 BiletAl</a></h1>
+    <h1><a href="/index.php">🚍 BiletAl</a></h1>
     <div class="nav-buttons">
         <span class="user-welcome">👋 Hoş geldin, <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['email']) ?>!</span>
-        <a href="index.php">🏠 Ana Sayfa</a>
-        <a href="logout.php">Çıkış Yap</a>
+        <a href="/index.php">🏠 Ana Sayfa</a>
+        <a href="/logout.php">Çıkış Yap</a>
     </div>
 </header>
 
@@ -209,8 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
     </div>
 
     <div style="margin-top: 20px;">
-        <a href="edit_trip.php?id=<?= $trip['id'] ?>" class="btn">✏️ Seferi Düzenle</a>
-        <a href="index.php" class="btn btn-secondary">⬅️ Geri Dön</a>
+        <a href="/edit_trip.php?id=<?= $trip['id'] ?>" class="btn">✏️ Seferi Düzenle</a>
+        <a href="/index.php" class="btn btn-secondary">⬅️ Geri Dön</a>
     </div>
 </div>
 
