@@ -15,10 +15,11 @@ if (!$ticket_id) {
     die("Geçersiz bilet ID");
 }
 
-// Bilet bilgilerini çek
+// Bilet bilgilerini çek (gerçek ödenen tutarı hesaplamak için order bilgilerini de al)
 $stmt = $db->prepare("
     SELECT t.*, tr.departure_city, tr.arrival_city, tr.departure_time, tr.arrival_time,
-           c.name as company_name, o.id as order_id
+           c.name as company_name, o.id as order_id, o.total_amount, o.final_amount, o.discount_amount,
+           (SELECT COUNT(*) FROM tickets WHERE order_id = t.order_id) as tickets_in_order
     FROM tickets t
     JOIN trips tr ON t.trip_id = tr.id
     JOIN companies c ON tr.company_id = c.id
@@ -52,6 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_ticket']) && $
     try {
         $db->beginTransaction();
         
+        // Gerçek iade tutarını hesapla
+        if ($ticket['order_id'] && $ticket['tickets_in_order'] > 0) {
+            // Eğer kupon kullanılmışsa, indirimli fiyatı hesapla (siparişteki toplam tutarı bilet sayısına böl)
+            $refund_amount = ($ticket['final_amount'] / $ticket['tickets_in_order']);
+        } else {
+            // Sipariş yoksa (eski sistem) tam fiyat iade et
+            $refund_amount = $ticket['price'];
+        }
+        
         // Bileti iptal et
         $stmt = $db->prepare("UPDATE tickets SET status = 'cancelled' WHERE id = :ticket_id");
         $stmt->execute([':ticket_id' => $ticket_id]);
@@ -60,9 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_ticket']) && $
         $stmt = $db->prepare("UPDATE trips SET available_seats = available_seats + 1 WHERE id = :trip_id");
         $stmt->execute([':trip_id' => $ticket['trip_id']]);
         
-        // Kullanıcıya para iadesi yap
-        $stmt = $db->prepare("UPDATE users SET balance = balance + :price WHERE id = :user_id");
-        $stmt->execute([':price' => $ticket['price'], ':user_id' => $_SESSION['user_id']]);
+        // Gerçek ödenen tutarı iade et
+        $stmt = $db->prepare("UPDATE users SET balance = balance + :refund_amount WHERE id = :user_id");
+        $stmt->execute([':refund_amount' => $refund_amount, ':user_id' => $_SESSION['user_id']]);
         
         // Bildirim gönder
         $stmt = $db->prepare("
@@ -71,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_ticket']) && $
         ");
         $notification_message = " " . $ticket['departure_city'] . " → " . $ticket['arrival_city'] . 
                                " seferine ait biletiniz iptal edildi. " . 
-                               number_format($ticket['price'], 2) . " ₺ hesabınıza iade edilmiştir.";
+                               number_format($refund_amount, 2) . " ₺ hesabınıza iade edilmiştir.";
         $stmt->execute([
             ':user_id' => $_SESSION['user_id'],
             ':message' => $notification_message
@@ -80,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_ticket']) && $
         $db->commit();
         
         // Session mesajı ile bilgi ver ve yönlendir
-        $_SESSION['success'] = "Bilet başarıyla iptal edildi! " . number_format($ticket['price'], 2) . " ₺ hesabınıza iade edildi.";
+        $_SESSION['success'] = "Bilet başarıyla iptal edildi! " . number_format($refund_amount, 2) . " ₺ hesabınıza iade edildi.";
         header('Location: account.php');
         exit;
         

@@ -10,6 +10,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'company') {
     exit;
 }
 
+// Company ID kontrolü
+if (!isset($_SESSION['company_id']) || empty($_SESSION['company_id'])) {
+    die("Şirket bilgisi bulunamadı. Lütfen tekrar giriş yapın. <a href='login.php'>Giriş Yap</a>");
+}
+
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
